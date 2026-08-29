@@ -6,6 +6,7 @@ from .serializers import ExpenseSerializer
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.filters import OrderingFilter
 
 
 # Create your views here.
@@ -19,6 +20,7 @@ def expense_list(request):
         category = request.query_params.get('category')
         search = request.query_params.get('search')
         ordering = request.query_params.get('ordering')
+    
 
         if category:
             expenses = expenses.filter(category=category)
@@ -26,8 +28,12 @@ def expense_list(request):
         if search:
             expenses = expenses.filter(name__icontains=search)
 
+        allowed_ordering = ['id', 'name', 'amount', 'category']
         if ordering: 
-            expenses = expenses.order_by(ordering)
+            field = ordering.lstrip('-')
+
+            if field in allowed_ordering:
+                expenses = expenses.order_by(ordering)
 
         paginator = PageNumberPagination()
         paginator.page_size = 10

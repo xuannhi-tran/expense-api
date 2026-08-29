@@ -231,3 +231,9 @@ class ExpenseAPITest(TestCase):
         amount = [expense["amount"] for expense in results]
         self.assertEqual(amount, expected_order)
         
+    def test_invalid_ordering(self):
+        client = APIClient()
+        client.force_authenticate(user=self.user)
+        response = client.get("/expenses/?ordering=invalid", 
+                              format='json')
+        self.assertEqual(response.status_code, 200)
