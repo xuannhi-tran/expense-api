@@ -197,7 +197,7 @@ class ExpenseAPITest(TestCase):
     def test_user_A_cannot_put_user_B_expense(self):
         client = APIClient()
         client.force_authenticate(user=self.user)
-        response = client.get(
+        response = client.put(
             f"/expenses/{self.expense2.id}/", 
             data = {
                 "name": "Updated Dinner",
@@ -271,7 +271,7 @@ class ExpenseAPITest(TestCase):
         self.assertEqual(amount, expected_order)
 
 
-    def test_decending_order(self):
+    def test_descending_order(self):
         client = APIClient()
         client.force_authenticate(user=self.user)
         response = client.get("/expenses/?ordering=-amount")

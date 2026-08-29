@@ -6,7 +6,6 @@ from .serializers import ExpenseSerializer
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.filters import OrderingFilter
 
 
 # Create your views here.
