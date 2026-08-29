@@ -4,6 +4,27 @@ A RESTful API for managing personal expenses, built with Django REST Framework.
 
 The API allows authenticated users to create, view, update, and delete their own expenses. It also supports searching, filtering, ordering, pagination, input validation, and automated testing.
 
+## Live Demo
+
+Base URL:
+
+https://expense-api-1p6n.onrender.com
+
+Admin:
+
+https://expense-api-1p6n.onrender.com/admin/
+
+## Deployment
+
+The application is deployed using Render.
+
+The production environment uses:
+
+- Gunicorn as the WSGI server
+- PostgreSQL as the production database
+- Environment variables for sensitive configuration
+- build.sh for deployment setup and database migrations
+
 ## Features
 
 - Token-based authentication
@@ -121,14 +142,14 @@ Authenticated users can only access their own expenses.
 
 ## API Endpoints
 
-| Method | Endpoint | Description | Authentication |
-|---|---|---|---|
-| `GET` | `/expenses/` | List user's expenses | Required |
-| `POST` | `/expenses/` | Create an expense | Required |
-| `GET` | `/expenses/<id>/` | Retrieve an expense | Required |
-| `PATCH` | `/expenses/<id>/` | Partially update an expense | Required |
-| `PUT` | `/expenses/<id>/` | Fully update an expense | Required |
-| `DELETE` | `/expenses/<id>/` | Delete an expense | Required |
+| Method   | Endpoint          | Description                 | Authentication |
+| -------- | ----------------- | --------------------------- | -------------- |
+| `GET`    | `/expenses/`      | List user's expenses        | Required       |
+| `POST`   | `/expenses/`      | Create an expense           | Required       |
+| `GET`    | `/expenses/<id>/` | Retrieve an expense         | Required       |
+| `PATCH`  | `/expenses/<id>/` | Partially update an expense | Required       |
+| `PUT`    | `/expenses/<id>/` | Fully update an expense     | Required       |
+| `DELETE` | `/expenses/<id>/` | Delete an expense           | Required       |
 
 ## Query Parameters
 
@@ -186,9 +207,9 @@ Request body:
 
 ```json
 {
-    "name": "Lunch",
-    "amount": 15.00,
-    "category": "Food"
+  "name": "Lunch",
+  "amount": 15.0,
+  "category": "Food"
 }
 ```
 
@@ -196,10 +217,10 @@ Example response:
 
 ```json
 {
-    "id": 1,
-    "name": "Lunch",
-    "amount": "15.00",
-    "category": "Food"
+  "id": 1,
+  "name": "Lunch",
+  "amount": "15.00",
+  "category": "Food"
 }
 ```
 
