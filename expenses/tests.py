@@ -104,6 +104,31 @@ class ExpenseAPITest(TestCase):
         )
         self.assertEqual(response.status_code, 400)
 
+    def test_patch_with_invalid_amount(self):
+        client = APIClient()
+        client.force_authenticate(user=self.user)
+        response = client.patch(
+            f"/expenses/{self.expense.id}/",
+            data={
+                "amount": -10
+            },
+            format='json'
+        )
+        self.assertEqual(response.status_code, 400)
+
+    def test_put_with_missing_category(self):
+        client = APIClient()
+        client.force_authenticate(user=self.user)
+        response = client.put(
+            f"/expenses/{self.expense.id}/",
+            data={
+                "name": "Updated Pizza",
+                "amount": 20
+            },
+            format="json"
+        )
+        self.assertEqual(response.status_code, 400)
+
     def test_user_can_patch_their_expense(self):
         client = APIClient()
         client.force_authenticate(user=self.user)
