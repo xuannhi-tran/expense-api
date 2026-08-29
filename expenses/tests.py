@@ -26,6 +26,17 @@ class ExpenseAPITest(TestCase):
         response = client.get("/expenses/")
         self.assertEqual(response.status_code, 401)
 
+    def test_unauthenticated_user_cannot_post_expenses(self):
+        client = APIClient()
+        response = client.post("/expenses/",
+                               data= {
+                                   "name": "Lunch",
+                                   "amount": 15,
+                                   "category": "Food"
+                               },
+                               format="json")
+        self.assertEqual(response.status_code, 401)
+
     def test_user_can_only_see_their_expenses(self):    
         client = APIClient()
         client.force_authenticate(user=self.user)
@@ -157,6 +168,20 @@ class ExpenseAPITest(TestCase):
             f"/expenses/{self.expense2.id}/", format="json"
         )
         self.assertEqual(response.status_code, 404)    
+
+    def test_user_A_cannot_put_user_B_expense(self):
+        client = APIClient()
+        client.force_authenticate(user=self.user)
+        response = client.get(
+            f"/expenses/{self.expense2.id}/", 
+            data = {
+                "name": "Updated Dinner",
+                "amount": 50.00,
+                "category": "Food"
+            },
+            format="json"
+        )
+        self.assertEqual(response.status_code, 404)         
 
     def test_pagination(self):
         self.expense2 = Expense.objects.create(name="Expense2", amount=20.00, category="Food", user=self.user)
