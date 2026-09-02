@@ -2,9 +2,11 @@
 
 A RESTful API for managing personal expenses, built with Django REST Framework.
 
-The API allows authenticated users to create, view, update, and delete their own expenses. It also supports searching, filtering, ordering, pagination, input validation, and automated testing.
+The API provides authenticated, user-scoped expense management with search, filtering, ordering, pagination, validation, timestamps, and automated testing.
 
-## Live Demo
+It serves as the backend for the Expense Tracker frontend application.
+
+## Live API
 
 Base URL:
 
@@ -14,41 +16,63 @@ Admin:
 
 https://expense-api-1p6n.onrender.com/admin/
 
-## Deployment
+> The service is hosted on Render and may take a short time to wake up after periods of inactivity.
 
-The application is deployed using Render.
+## Frontend
 
-The production environment uses:
+Live application:
 
-- Gunicorn as the WSGI server
-- PostgreSQL as the production database
-- Environment variables for sensitive configuration
-- build.sh for deployment setup and database migrations
+https://expense-frontend-tau-eight.vercel.app/
+
+Frontend repository:
+
+https://github.com/xuannhi-tran/expense-frontend
 
 ## Features
 
 - Token-based authentication
-- Create expenses
-- Retrieve expenses
-- Update expenses with `PATCH` and `PUT`
-- Delete expenses
-- User-based expense ownership
+- User registration
+- Create, retrieve, update, and delete expenses
+- User-specific data ownership
 - Search expenses by name
 - Filter expenses by category
-- Sort expenses by amount
+- Ordering
 - Pagination
+- Created and updated timestamps
 - Input validation
 - Automated API tests
+- PostgreSQL production database
 
 ## Tech Stack
 
 - Python
 - Django
 - Django REST Framework
-- SQLite
-- Token Authentication
+- PostgreSQL
+- SQLite for local development
+- DRF Token Authentication
+- Gunicorn
+- Render
 - Django Test Framework
 - Django REST Framework `APIClient`
+
+## Expense Model
+
+Each expense contains:
+
+```text
+id
+name
+amount
+category
+user
+created_at
+updated_at
+```
+
+Expenses are ordered by newest creation time by default.
+
+`created_at` records when an expense was originally created, while `updated_at` records the most recent modification.
 
 ## Project Structure
 
@@ -70,7 +94,9 @@ expense_api/
 │   └── admin.py
 │
 ├── API_DOCUMENTATION.md
+├── build.sh
 ├── manage.py
+├── requirements.txt
 ├── .gitignore
 └── README.md
 ```
@@ -80,8 +106,8 @@ expense_api/
 ### 1. Clone the repository
 
 ```bash
-git clone <your-repository-url>
-cd expense_api
+git clone https://github.com/xuannhi-tran/expense-api.git
+cd expense-api
 ```
 
 ### 2. Create a virtual environment
@@ -90,9 +116,9 @@ cd expense_api
 python -m venv venv
 ```
 
-### 3. Activate the virtual environment
+### 3. Activate the environment
 
-On Windows PowerShell:
+Windows PowerShell:
 
 ```powershell
 venv\Scripts\Activate.ps1
@@ -101,7 +127,7 @@ venv\Scripts\Activate.ps1
 ### 4. Install dependencies
 
 ```bash
-pip install django djangorestframework
+pip install -r requirements.txt
 ```
 
 ### 5. Apply migrations
@@ -124,48 +150,38 @@ http://127.0.0.1:8000/
 
 ## Authentication
 
-The API uses Token Authentication.
+The API uses Django REST Framework Token Authentication.
 
-Clients must include a valid token in the request header:
+Authenticated requests must include:
 
 ```text
 Authorization: Token <your-token>
 ```
 
-Example:
-
-```text
-Authorization: Token 29sf8fd...
-```
-
-Authenticated users can only access their own expenses.
+Users can only access and modify their own expense records.
 
 ## API Endpoints
 
-| Method   | Endpoint          | Description                 | Authentication |
-| -------- | ----------------- | --------------------------- | -------------- |
-| `GET`    | `/expenses/`      | List user's expenses        | Required       |
-| `POST`   | `/expenses/`      | Create an expense           | Required       |
-| `GET`    | `/expenses/<id>/` | Retrieve an expense         | Required       |
-| `PATCH`  | `/expenses/<id>/` | Partially update an expense | Required       |
-| `PUT`    | `/expenses/<id>/` | Fully update an expense     | Required       |
-| `DELETE` | `/expenses/<id>/` | Delete an expense           | Required       |
+| Method   | Endpoint           | Description                    | Authentication |
+| -------- | ------------------ | ------------------------------ | -------------- |
+| `POST`   | `/register/`       | Register a new user            | No             |
+| `POST`   | `/api-token-auth/` | Obtain an authentication token | No             |
+| `GET`    | `/expenses/`       | List user's expenses           | Required       |
+| `POST`   | `/expenses/`       | Create an expense              | Required       |
+| `GET`    | `/expenses/<id>/`  | Retrieve an expense            | Required       |
+| `PATCH`  | `/expenses/<id>/`  | Partially update an expense    | Required       |
+| `PUT`    | `/expenses/<id>/`  | Fully update an expense        | Required       |
+| `DELETE` | `/expenses/<id>/`  | Delete an expense              | Required       |
 
 ## Query Parameters
 
-The expense list endpoint supports the following query parameters:
-
 ### Search
-
-Search expenses by name:
 
 ```text
 GET /expenses/?search=Pizza
 ```
 
-### Filter
-
-Filter expenses by category:
+### Category Filter
 
 ```text
 GET /expenses/?category=Food
@@ -173,16 +189,11 @@ GET /expenses/?category=Food
 
 ### Ordering
 
-Sort expenses by amount:
-
 ```text
 GET /expenses/?ordering=amount
-```
-
-For descending order:
-
-```text
 GET /expenses/?ordering=-amount
+GET /expenses/?ordering=created_at
+GET /expenses/?ordering=-created_at
 ```
 
 ### Pagination
@@ -220,19 +231,21 @@ Example response:
   "id": 1,
   "name": "Lunch",
   "amount": "15.00",
-  "category": "Food"
+  "category": "Food",
+  "created_at": "2026-09-03T00:21:15.123456Z",
+  "updated_at": "2026-09-03T00:21:15.123456Z"
 }
 ```
 
 ## Validation
 
-The API validates expense data before creating or updating an expense.
+The API validates expense data before creation or modification.
 
-- Expense name cannot be empty.
-- Expense amount must be greater than `0`.
-- Expense category cannot be empty.
+- Expense name cannot be empty
+- Expense amount must be greater than `0`
+- Expense category cannot be empty
 
-Invalid requests return:
+Invalid input returns:
 
 ```text
 400 Bad Request
@@ -240,32 +253,23 @@ Invalid requests return:
 
 ## User Ownership
 
-Each expense is associated with a user.
+Each expense belongs to the authenticated user who created it.
 
-Users can only access their own expenses.
+Ownership is enforced at the query level, meaning users cannot retrieve, edit, or delete another user's expenses.
 
-For example:
-
-```text
-User A
-├── Pizza
-└── Bus
-
-User B
-└── Dinner
-```
-
-User A cannot retrieve, update, or delete User B's expenses.
-
-If a user attempts to access another user's expense, the API returns:
+Attempts to access another user's record return:
 
 ```text
 404 Not Found
 ```
 
-## Testing
+## Pagination and Analytics
 
-The project includes automated tests for the API.
+The expense list endpoint is paginated with 10 records per page.
+
+The frontend separately retrieves the complete expense dataset when calculating dashboard-wide analytics, ensuring that metrics such as total spending and category breakdown are not limited to the current transaction page.
+
+## Testing
 
 Run the test suite with:
 
@@ -273,21 +277,29 @@ Run the test suite with:
 python manage.py test
 ```
 
-The tests cover:
+Tests cover:
 
-- Expense ownership
 - Authentication
+- User ownership
 - Authorization
 - Creating expenses
 - Retrieving expenses
 - Updating expenses
 - Deleting expenses
-- Input validation
+- Validation
 - Search
 - Category filtering
-- Ascending ordering
-- Descending ordering
+- Ordering
 - Pagination
+
+## Deployment
+
+The API is deployed on Render using:
+
+- Gunicorn as the production WSGI server
+- PostgreSQL as the production database
+- Environment variables for sensitive configuration
+- `build.sh` for dependency installation and database migrations
 
 ## API Documentation
 
@@ -297,16 +309,15 @@ For detailed endpoint information, request examples, query parameters, validatio
 
 ## Future Improvements
 
-Possible future improvements include:
+Potential improvements include:
 
-- User registration and login endpoints
-- JWT authentication
-- Expense statistics and summaries
-- Date-based filtering
-- Monthly spending reports
+- Dedicated analytics and summary endpoints
+- Date-range filtering
+- Monthly and yearly aggregation endpoints
 - Budget management
-- Frontend interface
-- Deployment to a cloud platform
+- JWT authentication
+- Improved API documentation with OpenAPI / Swagger
+- Increased automated test coverage
 
 ## License
 
