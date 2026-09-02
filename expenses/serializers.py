@@ -6,7 +6,8 @@ class ExpenseSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Expense
-        fields = ['id', 'name', 'amount', 'category']
+        fields = ['id', 'name', 'amount', 'category', 'created_at', 'updated_at']
+        read_only_fielts = ['created_at', 'updated_at',]
 
     def validate_name(self, value):
         if (value == ""):

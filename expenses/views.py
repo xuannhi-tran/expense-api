@@ -28,7 +28,7 @@ def expense_list(request):
         if search:
             expenses = expenses.filter(name__icontains=search)
 
-        allowed_ordering = ['id', 'name', 'amount', 'category']
+        allowed_ordering = ['id', 'name', 'amount', 'category', 'created_at', 'updated_at',]
         if ordering: 
             field = ordering.lstrip('-')
 
